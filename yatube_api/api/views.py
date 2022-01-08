@@ -1,4 +1,5 @@
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied, ValidationError
 from posts.models import Follow, Group, Post
 from rest_framework import filters, viewsets
 from rest_framework.generics import get_object_or_404
@@ -10,6 +11,7 @@ from .permissions import IsAuthorOrReadOnly
 from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
                           PostSerializer)
 
+User = get_user_model()
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
@@ -60,12 +62,18 @@ class CommentViewSet(viewsets.ModelViewSet):
         super().perform_destroy(instance)
 
 
-class FollowViewSet(viewsets.ReadOnlyModelViewSet):
+class FollowViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('following', 'user')
+    search_fields = ('following__username',)
 
     def get_queryset(self):
-        follows = Follow.objects.filter(user=self.request.user)
-        return follows
+        return Follow.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        username = self.kwargs.get("username")
+        follow_user = get_object_or_404(User, username=username)
+        if follow_user == self.request.user:
+            raise ValidationError('Нельзя подписаться на самого себя!')
+        serializer.save(user=self.request.user, following=follow_user)
