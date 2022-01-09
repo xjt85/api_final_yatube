@@ -64,7 +64,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class FollowViewSet(viewsets.ModelViewSet):
     serializer_class = FollowSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('following__username',)
 
@@ -72,8 +72,8 @@ class FollowViewSet(viewsets.ModelViewSet):
         return Follow.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        username = self.kwargs.get("username")
-        follow_user = get_object_or_404(User, username=username)
-        if follow_user == self.request.user:
+        following = self.kwargs.get("following")
+        following_user = get_object_or_404(User, username=following)
+        if following_user == self.request.user:
             raise ValidationError('Нельзя подписаться на самого себя!')
-        serializer.save(user=self.request.user, following=follow_user)
+        serializer.save(user=self.request.user, following=following)
