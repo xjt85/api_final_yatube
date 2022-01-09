@@ -72,8 +72,6 @@ class FollowViewSet(viewsets.ModelViewSet):
         return Follow.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        following = self.kwargs.get("following")
-        following_user = get_object_or_404(User, username=following)
-        if following_user == self.request.user:
+        if serializer.following == self.request.user.username:
             raise ValidationError('Нельзя подписаться на самого себя!')
-        serializer.save(user=self.request.user, following=following)
+        serializer.save(user=self.request.user)
