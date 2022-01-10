@@ -32,14 +32,14 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field='username'
-    )
-    following = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field='username'
-    )
-    # user = serializers.StringRelatedField()
-    # following = serializers.StringRelatedField()
+    # user = serializers.SlugRelatedField(
+    #     queryset=User.objects.all(), slug_field='username'
+    # )
+    # following = serializers.SlugRelatedField(
+    #     queryset=User.objects.all(), slug_field='username'
+    # )
+    user = serializers.StringRelatedField()
+    following = serializers.StringRelatedField()
 
     class Meta:
         fields = '__all__'

@@ -13,6 +13,7 @@ from .serializers import (CommentSerializer, FollowSerializer, GroupSerializer,
 
 User = get_user_model()
 
+
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -72,6 +73,8 @@ class FollowViewSet(viewsets.ModelViewSet):
         return Follow.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        if serializer.following == self.request.user.username:
+        request = self.context.get("request")
+        following = request.data.get("following")
+        if following == self.request.user.username:
             raise ValidationError('Нельзя подписаться на самого себя!')
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user, following=following)
