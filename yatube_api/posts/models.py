@@ -52,9 +52,6 @@ class Follow(models.Model):
         related_name='userfollowing'
     )
 
-    def __str__(self):
-        return f'Подписка {self.user.username} на {self.following.username}'
-
     class Meta:
         constraints = [
             UniqueConstraint(
@@ -63,3 +60,6 @@ class Follow(models.Model):
         ]
         verbose_name = 'Подписка на пользователя'
         verbose_name_plural = 'Подписки на пользователей'
+
+    def __str__(self):
+        return f'Подписка {self.user.username} на {self.following.username}'
